@@ -1,12 +1,12 @@
 'use client';
 
 import FanLayout from '@/components/FanLayout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import SubscriptionModal from '@/components/SubscriptionModal';
 
-export default function CreatorProfilePage() {
+function CreatorProfileContent() {
     const searchParams = useSearchParams();
     const creatorEmail = searchParams.get('email');
 
@@ -180,170 +180,165 @@ export default function CreatorProfilePage() {
 
     if (!creator) {
         return (
-            <FanLayout>
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                </div>
-            </FanLayout>
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
         );
     }
 
     return (
-        <FanLayout>
-            <div className="max-w-4xl mx-auto px-4 py-6">
-                {/* Creator Profile Header */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-                    <div className="flex flex-col items-center text-center">
-                        {/* Profile Picture */}
-                        <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mb-4 overflow-hidden relative">
-                            {creator.profileImage ? (
-                                <Image
-                                    src={creator.profileImage}
-                                    alt={creator.fullName}
-                                    fill
-                                    className="object-cover"
-                                />
-                            ) : (
-                                <span className="text-white font-bold text-3xl">
-                                    {creator.fullName?.charAt(0).toUpperCase() || 'C'}
-                                </span>
-                            )}
+        <div className="max-w-4xl mx-auto px-4 py-6">
+            {/* Creator Profile Header */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+                <div className="flex flex-col items-center text-center">
+                    {/* Profile Picture */}
+                    <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mb-4 overflow-hidden relative">
+                        {creator.profileImage ? (
+                            <Image
+                                src={creator.profileImage}
+                                alt={creator.fullName}
+                                fill
+                                className="object-cover"
+                            />
+                        ) : (
+                            <span className="text-white font-bold text-3xl">
+                                {creator.fullName?.charAt(0).toUpperCase() || 'C'}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Creator Info */}
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{creator.fullName}</h1>
+                    <p className="text-gray-600 mb-4">{creator.email}</p>
+
+                    {/* Subscribe Button */}
+                    <div className="mb-4">{getSubscribeButton()}</div>
+
+                    {/* Stats */}
+                    <div className="flex items-center space-x-8 text-center">
+                        <div>
+                            <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
+                            <p className="text-sm text-gray-600">Posts</p>
                         </div>
-
-                        {/* Creator Info */}
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">{creator.fullName}</h1>
-                        <p className="text-gray-600 mb-4">{creator.email}</p>
-
-                        {/* Subscribe Button */}
-                        <div className="mb-4">{getSubscribeButton()}</div>
-
-                        {/* Stats */}
-                        <div className="flex items-center space-x-8 text-center">
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
-                                <p className="text-sm text-gray-600">Posts</p>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900">0</p>
-                                <p className="text-sm text-gray-600">Subscribers</p>
-                            </div>
+                        <div>
+                            <p className="text-2xl font-bold text-gray-900">0</p>
+                            <p className="text-sm text-gray-600">Subscribers</p>
                         </div>
                     </div>
                 </div>
-
-                {/* Posts Grid or Subscribe Message */}
-                {posts.length > 0 ? (
-                    (() => {
-                        // Filter viewable posts: Public OR Private if subscribed
-                        const viewablePosts = posts.filter(post =>
-                            post.visibility === 'public' || subscriptionStatus === 'approved'
-                        );
-
-                        // If we have viewable posts, show them
-                        if (viewablePosts.length > 0) {
-                            return (
-                                <>
-                                    <div className="grid grid-cols-3 gap-1 md:gap-2">
-                                        {viewablePosts.map((post) => (
-                                            <div
-                                                key={post._id}
-                                                onClick={() => openPostModal(post)}
-                                                className="relative aspect-square bg-gray-100 cursor-pointer group overflow-hidden"
-                                            >
-                                                {/* Show 'FREE' badge for public posts if not subscribed */}
-                                                {post.visibility === 'public' && subscriptionStatus !== 'approved' && (
-                                                    <div className="absolute top-2 right-2 bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10 font-bold shadow-sm">
-                                                        FREE
-                                                    </div>
-                                                )}
-
-                                                {post.imageUrl ? (
-                                                    <>
-                                                        <Image
-                                                            src={post.imageUrl}
-                                                            alt={post.title}
-                                                            fill
-                                                            className="object-cover transition-transform duration-200 group-hover:scale-110"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
-                                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-6 text-white">
-                                                                <div className="flex items-center">
-                                                                    <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                                    </svg>
-                                                                    <span className="font-semibold">{post.likes || 0}</span>
-                                                                </div>
-                                                                <div className="flex items-center">
-                                                                    <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                                                        <path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
-                                                                    </svg>
-                                                                    <span className="font-semibold">{post.comments?.length || 0}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-pink-100">
-                                                        <div className="text-center p-4">
-                                                            <p className="text-sm font-semibold text-gray-700 line-clamp-2">
-                                                                {post.title}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Show "Subscribe for more" if there are hidden private posts */}
-                                    {posts.length > viewablePosts.length && (
-                                        <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8 text-center bg-gradient-to-b from-indigo-50 to-white">
-                                            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white">
-                                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                </svg>
-                                            </div>
-                                            <h3 className="text-lg font-bold text-gray-900 mb-2">
-                                                {posts.length - viewablePosts.length} Exclusive Posts
-                                            </h3>
-                                            <p className="text-gray-600 mb-6">
-                                                Subscribe to unlock the rest of {creator.fullName}'s content.
-                                            </p>
-                                            {getSubscribeButton()}
-                                        </div>
-                                    )}
-                                </>
-                            );
-                        } else {
-                            // No viewable posts (all are private, and not subscribed)
-                            return (
-                                <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                                    <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                        Subscribe to View Content
-                                    </h3>
-                                    <p className="text-gray-500 mb-6">
-                                        This creator's content is exclusive to subscribers.
-                                    </p>
-                                    {getSubscribeButton()}
-                                </div>
-                            );
-                        }
-                    })()
-                ) : (
-                    // Truly empty
-                    <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                        <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
-                        <p className="text-gray-500">This creator hasn't posted any content yet</p>
-                    </div>
-                )}
             </div>
 
+            {/* Posts Grid or Subscribe Message */}
+            {posts.length > 0 ? (
+                (() => {
+                    // Filter viewable posts: Public OR Private if subscribed
+                    const viewablePosts = posts.filter(post =>
+                        post.visibility === 'public' || subscriptionStatus === 'approved'
+                    );
+
+                    // If we have viewable posts, show them
+                    if (viewablePosts.length > 0) {
+                        return (
+                            <>
+                                <div className="grid grid-cols-3 gap-1 md:gap-2">
+                                    {viewablePosts.map((post) => (
+                                        <div
+                                            key={post._id}
+                                            onClick={() => openPostModal(post)}
+                                            className="relative aspect-square bg-gray-100 cursor-pointer group overflow-hidden"
+                                        >
+                                            {/* Show 'FREE' badge for public posts if not subscribed */}
+                                            {post.visibility === 'public' && subscriptionStatus !== 'approved' && (
+                                                <div className="absolute top-2 right-2 bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10 font-bold shadow-sm">
+                                                    FREE
+                                                </div>
+                                            )}
+
+                                            {post.imageUrl ? (
+                                                <>
+                                                    <Image
+                                                        src={post.imageUrl}
+                                                        alt={post.title}
+                                                        fill
+                                                        className="object-cover transition-transform duration-200 group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-6 text-white">
+                                                            <div className="flex items-center">
+                                                                <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                                </svg>
+                                                                <span className="font-semibold">{post.likes || 0}</span>
+                                                            </div>
+                                                            <div className="flex items-center">
+                                                                <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
+                                                                </svg>
+                                                                <span className="font-semibold">{post.comments?.length || 0}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-pink-100">
+                                                    <div className="text-center p-4">
+                                                        <p className="text-sm font-semibold text-gray-700 line-clamp-2">
+                                                            {post.title}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Show "Subscribe for more" if there are hidden private posts */}
+                                {posts.length > viewablePosts.length && (
+                                    <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8 text-center bg-gradient-to-b from-indigo-50 to-white">
+                                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white">
+                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                                            {posts.length - viewablePosts.length} Exclusive Posts
+                                        </h3>
+                                        <p className="text-gray-600 mb-6">
+                                            Subscribe to unlock the rest of {creator.fullName}'s content.
+                                        </p>
+                                        {getSubscribeButton()}
+                                    </div>
+                                )}
+                            </>
+                        );
+                    } else {
+                        // No viewable posts (all are private, and not subscribed)
+                        return (
+                            <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+                                <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    Subscribe to View Content
+                                </h3>
+                                <p className="text-gray-500 mb-6">
+                                    This creator's content is exclusive to subscribers.
+                                </p>
+                                {getSubscribeButton()}
+                            </div>
+                        );
+                    }
+                })()
+            ) : (
+                // Truly empty
+                <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+                    <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
+                    <p className="text-gray-500">This creator hasn't posted any content yet</p>
+                </div>
+            )}
             {/* Post Modal */}
             {isModalOpen && selectedPost && (
                 <div
@@ -424,6 +419,20 @@ export default function CreatorProfilePage() {
                 creator={creator}
                 onConfirm={confirmSubscribe}
             />
+        </div>
+    );
+}
+
+export default function CreatorProfilePage() {
+    return (
+        <FanLayout>
+            <Suspense fallback={
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            }>
+                <CreatorProfileContent />
+            </Suspense>
         </FanLayout>
     );
 }
