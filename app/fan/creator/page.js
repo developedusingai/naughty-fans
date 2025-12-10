@@ -189,10 +189,10 @@ function CreatorProfileContent() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-6">
             {/* Creator Profile Header */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-8 mb-6">
                 <div className="flex flex-col items-center text-center">
                     {/* Profile Picture */}
-                    <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mb-4 overflow-hidden relative">
+                    <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mb-4 overflow-hidden relative">
                         {creator.profileImage ? (
                             <Image
                                 src={creator.profileImage}
@@ -215,7 +215,7 @@ function CreatorProfileContent() {
                     <div className="mb-4">{getSubscribeButton()}</div>
 
                     {/* Stats */}
-                    <div className="flex items-center space-x-8 text-center">
+                    <div className="flex items-center space-x-4 md:space-x-8 text-center">
                         <div>
                             <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
                             <p className="text-sm text-gray-600">Posts</p>
@@ -314,7 +314,7 @@ function CreatorProfileContent() {
                     } else {
                         // No viewable posts (all are private, and not subscribed)
                         return (
-                            <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-12 text-center">
                                 <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
@@ -331,7 +331,7 @@ function CreatorProfileContent() {
                 })()
             ) : (
                 // Truly empty
-                <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-12 text-center">
                     <svg className="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
@@ -346,7 +346,7 @@ function CreatorProfileContent() {
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto"
+                        className="bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-xl md:rounded-2xl overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex flex-col">

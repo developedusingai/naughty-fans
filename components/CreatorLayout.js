@@ -9,7 +9,7 @@ export default function CreatorLayout({ children }) {
     const pathname = usePathname();
     const [user, setUser] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         // Check if user is logged in and is a creator
@@ -74,7 +74,7 @@ export default function CreatorLayout({ children }) {
             {/* Sidebar */}
             <aside
                 className={`fixed top-0 left-0 z-40 h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    } bg-white border-r border-gray-200 w-64`}
+                    } lg:translate-x-0 bg-white border-r border-gray-200 w-64`}
             >
                 {/* Logo */}
                 <div className="h-16 flex items-center px-6 border-b border-gray-200">
@@ -125,13 +125,13 @@ export default function CreatorLayout({ children }) {
             </aside>
 
             {/* Main Content */}
-            <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
+            <div className={`transition-all duration-300 ml-0 lg:ml-64`}>
                 {/* Top Navigation Bar */}
                 <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
                     >
                         <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
