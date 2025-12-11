@@ -43,7 +43,7 @@ export async function GET(request) {
 // PUT - Update user profile
 export async function PUT(request) {
     try {
-        const { email, fullName, bio, profileImage, subscriptionRate } = await request.json();
+        const { email, fullName, bio, profileImage, subscriptionRate, upiId } = await request.json();
 
         if (!email) {
             return NextResponse.json(
@@ -64,6 +64,7 @@ export async function PUT(request) {
         if (bio !== undefined) updateData.bio = bio;
         if (profileImage !== undefined) updateData.profileImage = profileImage;
         if (subscriptionRate !== undefined) updateData.subscriptionRate = parseFloat(subscriptionRate);
+        if (upiId !== undefined) updateData.upiId = upiId;
 
         const result = await users.updateOne(
             { email },

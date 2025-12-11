@@ -82,6 +82,19 @@ export default function FanLayout({ children }) {
         },
     ];
 
+    const mobileNavigation = [
+        ...navigation,
+        {
+            name: 'Account',
+            href: '/fan/account',
+            icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            ),
+        },
+    ];
+
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -187,7 +200,7 @@ export default function FanLayout({ children }) {
             {/* Mobile Bottom Navigation */}
             <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 z-30">
                 <div className="flex items-center justify-around h-full px-2">
-                    {navigation.map((item) => {
+                    {mobileNavigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (
                             <Link

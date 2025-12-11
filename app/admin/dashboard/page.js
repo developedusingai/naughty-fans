@@ -5,7 +5,7 @@ import AdminLayout from '@/components/AdminLayout';
 export default function AdminDashboardPage() {
     return (
         <AdminLayout>
-            <div className="bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-700 animate-fade-in">
+            <div className="bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-2xl p-4 md:p-12 border border-gray-700 animate-fade-in">
                 {/* Welcome Section */}
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-600 to-purple-600 rounded-2xl mb-6 shadow-lg">
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Admin Actions Placeholder */}
-                <div className="bg-gradient-to-r from-red-600/20 to-purple-600/20 rounded-2xl p-8 border border-red-700/50">
+                <div className="bg-gradient-to-r from-red-600/20 to-purple-600/20 rounded-2xl p-4 md:p-8 border border-red-700/50">
                     <h3 className="text-2xl font-bold text-white mb-4">Admin Controls</h3>
                     <p className="text-gray-300 mb-6">
                         Manage users, content, and subscriptions from the sidebar navigation.

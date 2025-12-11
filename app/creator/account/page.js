@@ -16,7 +16,43 @@ export default function AccountPage() {
         bio: '',
         profileImage: '',
         subscriptionRate: '',
+        upiId: '',
     });
+
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+    const [tempSubscriptionData, setTempSubscriptionData] = useState({ subscriptionRate: '', upiId: '' });
+    const [modalError, setModalError] = useState('');
+
+    const handleOpenModal = () => {
+        setTempSubscriptionData({
+            subscriptionRate: formData.subscriptionRate || '',
+            upiId: formData.upiId || ''
+        });
+        setModalError('');
+        setShowSubscriptionModal(true);
+    };
+
+    const handleSaveModal = () => {
+        if (!tempSubscriptionData.subscriptionRate && tempSubscriptionData.subscriptionRate !== 0) {
+            setModalError('Subscription rate is required');
+            return;
+        }
+        if (!tempSubscriptionData.upiId) {
+            setModalError('UPI ID is required');
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            subscriptionRate: tempSubscriptionData.subscriptionRate,
+            upiId: tempSubscriptionData.upiId
+        }));
+        setShowSubscriptionModal(false);
+    };
+
+    const handleCloseModal = () => {
+        setShowSubscriptionModal(false);
+    };
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -37,6 +73,7 @@ export default function AccountPage() {
                     bio: data.user.bio || '',
                     profileImage: data.user.profileImage || '',
                     subscriptionRate: data.user.subscriptionRate || '',
+                    upiId: data.user.upiId || '',
                 });
                 // Update local storage if needed, or just state
             }
@@ -205,28 +242,118 @@ export default function AccountPage() {
                             />
                         </div>
 
-                        {/* Subscription Rate */}
+                        {/* Subscription Management */}
                         <div>
-                            <label htmlFor="subscriptionRate" className="block text-sm font-semibold text-gray-700 mb-2">
-                                Monthly Subscription Rate ($)
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Subscription & Payouts
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <span className="text-gray-500 font-semibold">$</span>
+                            <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                                <div>
+                                    <p className="text-sm text-gray-500">Current Monthly Rate</p>
+                                    <p className="text-xl font-bold text-gray-900">
+                                        ${formData.subscriptionRate || '0.00'}
+                                    </p>
                                 </div>
-                                <input
-                                    type="number"
-                                    id="subscriptionRate"
-                                    min="0"
-                                    step="0.01"
-                                    value={formData.subscriptionRate}
-                                    onChange={(e) => setFormData({ ...formData, subscriptionRate: e.target.value })}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="0.00"
-                                />
+                                <button
+                                    type="button"
+                                    onClick={handleOpenModal}
+                                    className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                                >
+                                    Manage Subscription Rate
+                                </button>
                             </div>
-                            <p className="mt-1 text-xs text-gray-500">Set to 0 for free access</p>
                         </div>
+
+                        {/* Subscription Modal */}
+                        {showSubscriptionModal && (
+                            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                                <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fade-in relative">
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseModal}
+                                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                                    >
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Manage Subscription</h3>
+
+                                    {modalError && (
+                                        <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg">
+                                            {modalError}
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-4">
+                                        {/* Rate Input */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Monthly Subscription Rate ($) <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={tempSubscriptionData.subscriptionRate}
+                                                onChange={(e) => setTempSubscriptionData({ ...tempSubscriptionData, subscriptionRate: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            />
+                                        </div>
+
+                                        {/* Fee Calculation */}
+                                        <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Fee Breakdown</p>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Total Charge</span>
+                                                <span className="font-semibold">${Number(tempSubscriptionData.subscriptionRate || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Platform Fee (20%)</span>
+                                                <span className="text-red-500">-${(Number(tempSubscriptionData.subscriptionRate || 0) * 0.20).toFixed(2)}</span>
+                                            </div>
+                                            <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-bold">
+                                                <span className="text-green-700">Your Cut (80%)</span>
+                                                <span className="text-green-700">${(Number(tempSubscriptionData.subscriptionRate || 0) * 0.80).toFixed(2)}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* UPI ID Input */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Your UPI ID for Payouts <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={tempSubscriptionData.upiId}
+                                                onChange={(e) => setTempSubscriptionData({ ...tempSubscriptionData, upiId: e.target.value })}
+                                                placeholder="username@upi"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Funds will be transferred to this ID.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 flex justify-end space-x-3">
+                                        <button
+                                            type="button"
+                                            onClick={handleCloseModal}
+                                            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleSaveModal}
+                                            className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700"
+                                        >
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Email (Read-only) */}
                         <div>

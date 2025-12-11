@@ -2,26 +2,35 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-// GET - Fetch all posts for a creator
+// GET - Fetch all posts for a creator or admin view
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const creatorEmail = searchParams.get('creatorEmail');
         const fanEmail = searchParams.get('fanEmail');
-
-        if (!creatorEmail) {
-            return NextResponse.json(
-                { error: 'Creator email is required' },
-                { status: 400 }
-            );
-        }
+        const view = searchParams.get('view'); // 'admin' for admin view
 
         const client = await clientPromise;
         const db = client.db('privatefan');
         const posts = db.collection('posts');
 
+        let query = {};
+
+        if (view === 'admin') {
+            // Admin fetches all posts
+            query = {};
+        } else if (creatorEmail) {
+            // Fetch specific creator's posts
+            query = { creatorEmail };
+        } else {
+            return NextResponse.json(
+                { error: 'Creator email or admin view is required' },
+                { status: 400 }
+            );
+        }
+
         const creatorPosts = await posts
-            .find({ creatorEmail })
+            .find(query)
             .sort({ createdAt: -1 })
             .toArray();
 
